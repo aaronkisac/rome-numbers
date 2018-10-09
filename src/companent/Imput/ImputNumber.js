@@ -15,13 +15,12 @@ class InputNumber extends Component {
   };
 
   numberToRomen = async number => {
-    console.log(number);
     if (number >= 4000 || number <= 0) {
       await this.setState({
         message: "Please enter the number between 1 to 3999"
       });
     } else {
-      await this.setState({ message: "Succesfull" });
+      await this.setState({ message: "Succesfull submit" });
       let numberDigits = { thousands: 0, hundreds: 0, tens: 0, ones: 0 };
       numberDigits.thousands = Math.floor(number / 1000) % 10;
       numberDigits.hundreds = Math.floor(number / 100) % 10;
@@ -91,8 +90,6 @@ class InputNumber extends Component {
           }
         }
       }
-      console.log(numberDigits);
-      console.log(romenDigits);
       const result =
         romenDigits.thousands +
         romenDigits.hundreds +
@@ -100,7 +97,6 @@ class InputNumber extends Component {
         romenDigits.ones;
       this.setState({ result });
     }
-    await console.log(this.state.message);
   };
 
   onSubmit = async e => {
@@ -116,50 +112,65 @@ class InputNumber extends Component {
   };
 
   romenToNumber = romen => {
-    let romeNumbers = [
-      { romen: "I", number: 1 },
-      { romen: "V", number: 5 },
-      { romen: "X", number: 10 },
-      { romen: "L", number: 50 },
-      { romen: "C", number: 100 },
-      { romen: "D", number: 500 },
-      { romen: "M", number: 1000 }
-    ];
-    let irregularOfRomenNumbers = [
-      { romen: "IV", number: 4 },
-      { romen: "IX", number: 9 },
-      { romen: "XL", number: 50 },
-      { romen: "XC", number: 90 },
-      { romen: "CD", number: 400 },
-      { romen: "CM", number: 900 }
+    let romensNumbers = [
+      [
+        [
+          { romen: "IV", number: 4 },
+          { romen: "V", number: 5 },
+          { romen: "IX", number: 9 }
+        ],
+        { romen: "I", number: 1 }
+      ],
+      [
+        [
+          { romen: "XL", number: 40 },
+          { romen: "L", number: 50 },
+          { romen: "XC", number: 90 }
+        ],
+        { romen: "X", number: 10 }
+      ],
+      [
+        [
+          { romen: "CD", number: 400 },
+          { romen: "D", number: 500 },
+          { romen: "CM", number: 900 }
+        ],
+        { romen: "C", number: 100 }
+      ],
+      [[{}], { romen: "M", number: 1000 }]
     ];
     const even = romenNumber => {
       return romen.includes(romenNumber.romen);
     };
     let numberOfRomen = 0;
-    if (irregularOfRomenNumbers.some(even)) {
-      for (let index in irregularOfRomenNumbers) {
-        if (romen.includes(irregularOfRomenNumbers[index].romen)) {
-          numberOfRomen += irregularOfRomenNumbers[index].number;
-          romen=romen.replace(irregularOfRomenNumbers[index].romen, "");
-          console.log(romen);
+    for (let index=0;index<4;index++) {
+      if (romensNumbers[index][0].some(even)) {
+        if (romen.includes(romensNumbers[index][0][0].romen)) {
+          numberOfRomen += romensNumbers[index][0][0].number;
+          romen = romen.replace(romensNumbers[index][0][0].romen, "");
+        } else if (romen.includes(romensNumbers[index][0][1].romen)) {
+          numberOfRomen += romensNumbers[index][0][1].number;
+          romen = romen.replace(romensNumbers[index][0][1].romen, "");
+          if (romen.includes(romensNumbers[index][1].romen)) {
+            let i = 0;
+            while (romen.includes(romensNumbers[index][1].romen) && i <3) {
+              numberOfRomen += romensNumbers[index][1].number;
+              romen = romen.replace(romensNumbers[index][1].romen, "");
+              i++;
+            }}
+        } else if (romen.includes(romensNumbers[index][0][2].romen)) {
+          numberOfRomen += romensNumbers[index][0][2].number;
+          romen = romen.replace(romensNumbers[index][0][2].romen, "");
+        } 
+      }else if (romen.includes(romensNumbers[index][1].romen)) {
+        let i = 0;
+        while (romen.includes(romensNumbers[index][1].romen) && i <3) {
+          numberOfRomen += romensNumbers[index][1].number;
+          romen = romen.replace(romensNumbers[index][1].romen, "");
+          i++;
         }
       }
     }
-    if (romeNumbers.some(even)) {
-      for (let index in romeNumbers) {
-        const cashRomenNumber = romeNumbers[index].romen;
-        const cashNumberOfRomenNumber = romeNumbers[index].number;
-        let i=1;
-        while (romen.includes(cashRomenNumber)&&i<=3)  {
-        numberOfRomen += cashNumberOfRomenNumber;
-        romen=romen.replace(cashRomenNumber, "");
-        console.log(cashRomenNumber, "=", romen);
-        i++;
-        }
-      }
-    }
-
     this.setState({ numberOfRomen });
   };
 
@@ -196,6 +207,7 @@ class InputNumber extends Component {
             Submit
           </button>
         </form>
+        <h3>{this.state.message}</h3>
         <h1>{this.state.result}</h1>
         <form>
           <div className="form-group">
